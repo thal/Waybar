@@ -34,6 +34,7 @@ Workspaces::Workspaces(const std::string &id, const Bar &bar, const Json::Value 
     }
   }
   box_.set_name("workspaces");
+  box_.set_homogeneous( true );
   if (!id.empty()) {
     box_.get_style_context()->add_class(id);
   }
@@ -252,11 +253,16 @@ auto Workspaces::update() -> void {
                            fmt::arg("index", (*it)["num"].asString()),
                            fmt::arg("output", (*it)["output"].asString()));
     }
+    auto *label = static_cast<Gtk::Label *>(button.get_children()[0]);
+    label->set_xalign(0.0f);
+    label->set_ellipsize(Pango::ELLIPSIZE_END);
     if (!config_["disable-markup"].asBool()) {
-      static_cast<Gtk::Label *>(button.get_children()[0])->set_markup(output);
+      label->set_markup(output);
     } else {
       button.set_label(output);
     }
+    button.get_child()->set_hexpand(true);
+    button.get_child()->set_halign(Gtk::Align::ALIGN_FILL);
     onButtonReady(*it, button);
   }
   // Call parent update
@@ -266,9 +272,13 @@ auto Workspaces::update() -> void {
 Gtk::Button &Workspaces::addButton(const Json::Value &node) {
   auto pair = buttons_.emplace(node["name"].asString(), node["name"].asString());
   auto &&button = pair.first->second;
-  box_.pack_start(button, false, false, 0);
+  box_.pack_start(button, true, true, 0);
   button.set_name("sway-workspace-" + node["name"].asString());
   button.set_relief(Gtk::RELIEF_NONE);
+//  Glib::Value<float> xalign;
+//  xalign.init(xalign.value_type());
+//  xalign.set(0.0f);
+//  button.set_property_value("xalign", xalign);
   if (!config_["disable-click"].asBool()) {
     button.signal_pressed().connect([this, node] {
       try {
