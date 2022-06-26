@@ -795,7 +795,6 @@ void waybar::Bar::getModules(const Factory& factory, const std::string& pos,
 auto waybar::Bar::setupWidgets() -> void {
   window.add(box_);
   box_.pack_start(left_, false, false);
-  // Perhaps center box should not be added at all if it is empty. Still takes up space
   if (config["fixed-center"].isBool() ? config["fixed-center"].asBool() : true) {
     box_.set_center_widget(center_);
   } else {

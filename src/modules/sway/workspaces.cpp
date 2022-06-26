@@ -284,15 +284,16 @@ Gtk::Button &Workspaces::addButton(const Json::Value &node) {
       try {
         if (node["target_output"].isString()) {
           ipc_.sendCmd(IPC_COMMAND,
-                       fmt::format(persistent_workspace_switch_cmd_, "--no-auto-back-and-forth",
-                                   node["name"].asString(), node["target_output"].asString(),
-                                   "--no-auto-back-and-forth", node["name"].asString()));
+                       fmt::format(workspace_move_cmd_,
+                                   "--no-auto-back-and-forth", node["num"].asString(),
+                                   node["target_output"].asString(), "--no-auto-back-and-forth",
+                                   node["num"].asString()));
         } else {
-          ipc_.sendCmd(IPC_COMMAND, fmt::format("workspace {} \"{}\"",
+          ipc_.sendCmd(IPC_COMMAND, fmt::format("workspace {} number {}",
                                                 config_["disable-auto-back-and-forth"].asBool()
                                                     ? "--no-auto-back-and-forth"
                                                     : "",
-                                                node["name"].asString()));
+                                                node["num"].asString()));
         }
       } catch (const std::exception &e) {
         spdlog::error("Workspaces: {}", e.what());
@@ -370,7 +371,7 @@ bool Workspaces::handleScroll(GdkEventScroll *e) {
     ipc_.sendCmd(IPC_COMMAND, fmt::format("mouse_warping none"));
   }
   try {
-    ipc_.sendCmd(IPC_COMMAND, fmt::format(workspace_switch_cmd_, "--no-auto-back-and-forth", name));
+    ipc_.sendCmd(IPC_COMMAND, fmt::format(workspace_switch_cmd_, "--no-auto-back-and-forth", convertWorkspaceNameToNum(name)));
   } catch (const std::exception &e) {
     spdlog::error("Workspaces: {}", e.what());
   }
